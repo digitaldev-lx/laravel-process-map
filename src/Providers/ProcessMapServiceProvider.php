@@ -12,6 +12,12 @@ use DigitaldevLx\LaravelProcessMap\Commands\ScanCommand;
 use DigitaldevLx\LaravelProcessMap\Exporters\JsonExporter;
 use DigitaldevLx\LaravelProcessMap\Exporters\MarkdownExporter;
 use DigitaldevLx\LaravelProcessMap\Exporters\MermaidExporter;
+use DigitaldevLx\LaravelProcessMap\Mcp\Commands\McpInstallCommand;
+use DigitaldevLx\LaravelProcessMap\Mcp\Commands\McpStatusCommand;
+use DigitaldevLx\LaravelProcessMap\Mcp\Support\McpResponseFactory;
+use DigitaldevLx\LaravelProcessMap\Mcp\Support\McpSecurityGuard;
+use DigitaldevLx\LaravelProcessMap\Mcp\Support\ProcessMapRepository;
+use DigitaldevLx\LaravelProcessMap\Mcp\Support\ProcessMapSanitizer;
 use DigitaldevLx\LaravelProcessMap\ProcessMap;
 use DigitaldevLx\LaravelProcessMap\Scanners\ApplicationScanner;
 use Illuminate\Contracts\Config\Repository;
@@ -49,6 +55,13 @@ class ProcessMapServiceProvider extends ServiceProvider
         });
 
         $this->app->singleton(ProcessMap::class);
+
+        // MCP support layer — singletons regardless of mcp.enabled so the
+        // status command can always introspect them.
+        $this->app->singleton(ProcessMapSanitizer::class);
+        $this->app->singleton(McpSecurityGuard::class);
+        $this->app->singleton(ProcessMapRepository::class);
+        $this->app->singleton(McpResponseFactory::class);
     }
 
     public function boot(): void
@@ -64,6 +77,8 @@ class ProcessMapServiceProvider extends ServiceProvider
                 ReportCommand::class,
                 JsonCommand::class,
                 MermaidCommand::class,
+                McpInstallCommand::class,
+                McpStatusCommand::class,
             ]);
         }
     }

@@ -30,6 +30,7 @@ The output is useful for:
   - [Markdown](#markdown)
   - [Mermaid](#mermaid)
 - [Designed for LLM consumption](#designed-for-llm-consumption)
+- [MCP Support](#mcp-support)
 - [Configuration](#configuration)
 - [Available scanners](#available-scanners)
 - [Process detection](#process-detection)
@@ -448,6 +449,123 @@ A useful starter prompt once the file is in context:
 > see ⚠/🛡/💡 markers, treat them as starting points for deeper review,
 > not as confirmed bugs."*
 
+## MCP Support
+
+Laravel Process Map ships an optional **read-only MCP layer** on top of
+[`laravel/mcp`](https://github.com/laravel/mcp). It exposes the same
+process map as MCP **resources**, **tools** and **prompts** so Claude
+Code (and any other MCP-compatible client) can query your application
+architecture interactively, without you having to load a large static
+report into the prompt.
+
+The layer is **off by default**. Activating it does not relax any of
+the package's security guarantees: it remains strictly read-only — no
+shell, no SQL, no external HTTP, no `.env` exposure.
+
+### When to use which
+
+| Want… | Use |
+| --- | --- |
+| Static documentation you commit to the repo, an audit attachment, or a quick LLM context paste | The Markdown / JSON / Mermaid exports |
+| An interactive session where the LLM picks the right slice of the map per question; very large apps; reusable prompts; per-process inspection | The MCP layer |
+
+### Installation
+
+The dependency ships with the package — there is nothing extra to
+install. You only have to opt in:
+
+```bash
+# 1. Show the install instructions
+php artisan process-map:mcp-install
+
+# 2. Switch the flag in your .env
+PROCESS_MAP_MCP_ENABLED=true
+
+# 3. Make sure routes/ai.php exists (laravel/mcp publishes it)
+php artisan vendor:publish --tag=ai-routes
+
+# 4. Register the server in routes/ai.php
+```
+
+```php
+use Laravel\Mcp\Facades\Mcp;
+use DigitaldevLx\LaravelProcessMap\Mcp\Servers\ProcessMapServer;
+
+// STDIO (Claude Code's default transport)
+Mcp::local('process-map', ProcessMapServer::class);
+
+// or HTTP (with throttling middleware of your choice)
+// Mcp::web('/mcp/process-map', ProcessMapServer::class)->middleware('throttle:mcp');
+```
+
+```bash
+# 5. Produce a process map (the MCP layer reads it)
+php artisan process-map:scan --all
+
+# 6. Verify
+php artisan process-map:mcp-status
+```
+
+The status command prints the current toggles and the security policy
+flags so any deviation from the read-only defaults is visible at a
+glance.
+
+### Resources
+
+| URI | Returns |
+| --- | --- |
+| `process-map://summary` | App metadata, totals, schema and package version |
+| `process-map://processes` | Compact list of detected processes with counts |
+| `process-map://process/{slug}` | Full detail of one process (template URI) |
+| `process-map://routes` | All registered routes |
+| `process-map://classes` | Discovered classes grouped by type |
+| `process-map://risks` | Consolidated risks across processes |
+| `process-map://recommendations` | Recommendations + bottleneck hints |
+| `process-map://mermaid` | Raw Mermaid diagram |
+
+### Tools (every one read-only)
+
+`get_process_map_summary`, `list_processes`,
+`get_process_details`, `get_process_components`, `get_process_risks`,
+`get_process_recommendations`, `get_related_classes` (depth-bounded),
+`get_route_map`, `get_mermaid_diagram`, `refresh_process_map`
+(re-runs the static scan; gated by
+`process-map.mcp.tools.allow_refresh_scan`),
+`compare_process_maps` (stub; gated by
+`process-map.mcp.tools.allow_compare_scans`, lands in v1.2).
+
+### Prompts
+
+`audit_process`, `refactor_process_safely`, `document_process`,
+`find_automation_opportunities`, `generate_technical_handover`,
+`prepare_mcp_tools_from_actions`. Every prompt accepts the process
+slug (or name / entity) where applicable and a small set of tuning
+arguments.
+
+### Example — talking to Claude Code
+
+Once the server is registered and the scan has been run, you can drop
+this into Claude Code:
+
+> *"Use the Laravel Process Map MCP server to inspect the
+> `lead-management` process before making any change. List the
+> available processes first, then call `get_process_details`,
+> `get_process_components`, `get_process_risks` and
+> `get_mermaid_diagram`. Propose a safe refactoring plan via the
+> `refactor_process_safely` prompt. Do not modify code until I
+> approve."*
+
+### Security envelope (always enforced)
+
+- read-only by design — every tool carries `#[IsReadOnly]`;
+- no shell execution, no SQL, no external HTTP;
+- `.env` is never read; sensitive metadata keys (password / secret /
+  token / api_key / authorization / bearer / credential / connection /
+  *_password / private_key) are redacted to `[REDACTED]`;
+- output size is capped per response (`max_response_bytes`), processes
+  and classes have explicit ceilings, related-class graph walks have
+  a hard depth limit (`max_related_depth ≤ 5`).
+
 ## Configuration
 
 Publish the configuration:
@@ -614,9 +732,9 @@ A dedicated test (`tests/Unit/ReadOnlyInvariantTest.php`) scans the package's ow
 
 | Version | Highlights |
 | --- | --- |
-| **v1.0** *(current)* | Stable initial release — static scan, JSON/Markdown/Mermaid exporters, heuristic process detection with reference-aware clustering, dense LLM-ready Markdown. |
-| **v1.1** | HTML dashboard, AST-based reference resolution improvements, automation scoring refinements. |
-| **v1.2** | MCP server resource — expose the same LLM-ready report (and JSON) as a tool an AI agent can pull on demand. |
+| **v1.0** | Static scan, JSON/Markdown/Mermaid exporters, heuristic process detection with reference-aware clustering, dense LLM-ready Markdown. |
+| **v1.1** *(current)* | Read-only MCP layer (laravel/mcp) — 8 resources, 11 tools, 6 prompts. Process slugs in core. |
+| **v1.2** | HTML dashboard, snapshot history, `compare_process_maps` tool. |
 | **v1.3** | GitHub Action, scan diff between commits, architectural regression detection. |
 | **v2.0** | Plugin SPI for custom scanners and detectors; potential schema upgrade. |
 

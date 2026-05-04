@@ -238,4 +238,80 @@ return [
         'enabled' => true,
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | MCP layer
+    |--------------------------------------------------------------------------
+    |
+    | The package can expose the process map through a read-only Model
+    | Context Protocol (MCP) server backed by laravel/mcp. The layer is
+    | OFF by default. Enable it explicitly when you want Claude Code (or
+    | any MCP-compatible client) to query your process map dynamically.
+    |
+    | The implementation is strictly read-only: no shell, no SQL, no
+    | external HTTP, no .env exposure. See the README "MCP Support"
+    | section for the full security envelope.
+    |
+    */
+
+    'mcp' => [
+        'enabled' => env('PROCESS_MAP_MCP_ENABLED', false),
+
+        'read_only' => true,
+
+        'server' => [
+            'name' => env('PROCESS_MAP_MCP_NAME', 'Laravel Process Map'),
+            'version' => '1.1.0',
+            'description' => 'Read-only MCP interface for Laravel application process maps.',
+            'instructions' => 'Use the available resources, tools and prompts to inspect the application\'s business processes. Every interaction is read-only.',
+        ],
+
+        // Where Mcp::local() / Mcp::web() registration is expected. The
+        // commands print the snippet for routes/ai.php — they never edit
+        // application files automatically.
+        'registration' => [
+            'transport' => env('PROCESS_MAP_MCP_TRANSPORT', 'local'),
+            'handle' => env('PROCESS_MAP_MCP_HANDLE', 'process-map'),
+            'web_path' => env('PROCESS_MAP_MCP_PATH', '/mcp/process-map'),
+        ],
+
+        'resources' => [
+            'enabled' => true,
+            'include_markdown' => true,
+            'include_json' => true,
+        ],
+
+        'tools' => [
+            'enabled' => true,
+            'allow_refresh_scan' => env('PROCESS_MAP_MCP_ALLOW_REFRESH', true),
+            'allow_compare_scans' => false,
+            'max_processes_returned' => 100,
+            'max_classes_returned' => 250,
+            'max_routes_returned' => 500,
+            'max_related_depth' => 3,
+            'max_response_bytes' => 256_000,
+        ],
+
+        'prompts' => [
+            'enabled' => true,
+        ],
+
+        'security' => [
+            'expose_file_paths' => true,
+            'expose_method_names' => true,
+            'expose_private_properties' => false,
+            'expose_docblocks' => false,
+            'redact_sensitive_values' => true,
+            'allow_external_http' => false,
+            'allow_shell_execution' => false,
+            'allow_database_queries' => false,
+            'allow_code_modification' => false,
+        ],
+
+        'cache' => [
+            'enabled' => true,
+            'ttl_seconds' => 300,
+        ],
+    ],
+
 ];

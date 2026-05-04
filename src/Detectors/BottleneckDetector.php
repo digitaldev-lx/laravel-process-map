@@ -65,6 +65,7 @@ final class BottleneckDetector
             potentialBottlenecks: array_values(array_unique($hints)),
             risks: $process->risks,
             recommendations: $process->recommendations,
+            slug: $process->slug,
         );
     }
 
