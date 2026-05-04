@@ -9,6 +9,9 @@
         "documentation",
         "consulting",
         "automation",
+        "mcp",
+        "claude-code",
+        "ai-tooling",
         "digitaldev"
     ],
     "license": "MIT",
@@ -23,6 +26,7 @@
     "require": {
         "php": "^8.4",
         "laravel/framework": "^12.0 || ^13.0",
+        "laravel/mcp": "^0.7",
         "nikic/php-parser": "^5.0",
         "symfony/finder": "^7.0"
     },

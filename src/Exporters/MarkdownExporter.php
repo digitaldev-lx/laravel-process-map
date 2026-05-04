@@ -108,6 +108,7 @@ final class MarkdownExporter extends AbstractExporter
         $lines = [];
         $lines[] = "### {$index}. {$process->name}";
         $lines[] = '';
+        $lines[] = "- **Slug:** `{$process->slug}`";
         $lines[] = "- **Entity:** `{$process->entity}`";
         $lines[] = "- **Automation:** {$process->automationLevel->value}";
 

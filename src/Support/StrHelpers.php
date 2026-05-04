@@ -70,6 +70,17 @@ final class StrHelpers
     }
 
     /**
+     * Generate a stable, lowercase, hyphenated slug from any string.
+     * Used by the process detector and the MCP layer (URI fragments).
+     */
+    public static function slug(string $value): string
+    {
+        $slug = strtolower(trim((string) preg_replace('/[^A-Za-z0-9]+/', '-', $value), '-'));
+
+        return $slug === '' ? 'process' : $slug;
+    }
+
+    /**
      * Build a deterministic, mermaid-safe identifier for a string. Mermaid
      * node IDs cannot contain spaces, dots, slashes or special characters.
      */

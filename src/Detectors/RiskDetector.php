@@ -72,6 +72,7 @@ final class RiskDetector
             potentialBottlenecks: $process->potentialBottlenecks,
             risks: array_values(array_unique($risks)),
             recommendations: array_values(array_unique(array_merge($process->recommendations, $recommendations))),
+            slug: $process->slug,
         );
     }
 

@@ -60,6 +60,7 @@ final class AutomationDetector
             potentialBottlenecks: $process->potentialBottlenecks,
             risks: $process->risks,
             recommendations: $process->recommendations,
+            slug: $process->slug,
         );
     }
 }
