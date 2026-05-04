@@ -7,6 +7,60 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-05-05
+
+### Added
+
+- **MCP layer (read-only)** built on top of `laravel/mcp` v0.7. Disabled
+  by default; opt in via `PROCESS_MAP_MCP_ENABLED=true`.
+- 8 MCP resources under the `process-map://` scheme:
+  - `process-map://summary`
+  - `process-map://processes`
+  - `process-map://process/{slug}` (URI template)
+  - `process-map://routes`
+  - `process-map://classes`
+  - `process-map://risks`
+  - `process-map://recommendations`
+  - `process-map://mermaid`
+- 11 MCP tools, every one annotated `#[IsReadOnly]`:
+  `get_process_map_summary`, `list_processes`, `get_process_details`,
+  `get_process_components`, `get_process_risks`,
+  `get_process_recommendations`, `get_related_classes`,
+  `get_route_map`, `get_mermaid_diagram`, `refresh_process_map`,
+  `compare_process_maps` (gated stub).
+- 6 MCP prompts: `audit_process`, `refactor_process_safely`,
+  `document_process`, `find_automation_opportunities`,
+  `generate_technical_handover`, `prepare_mcp_tools_from_actions`.
+- New Artisan commands: `process-map:mcp-install` (instructions only,
+  never edits `.env` or `routes/ai.php` automatically) and
+  `process-map:mcp-status` (tabular diagnostic).
+- `ProcessMapRepository`: cached, sanitised loader for
+  `process-map.json`. Honours `mcp.cache.ttl_seconds`.
+- `ProcessMapSanitizer`: redacts string values whose key contains
+  `password|secret|token|api_key|authorization|bearer|credential|...`.
+- `McpSecurityGuard`: single source of truth for the read-only
+  envelope and the configurable limits (max processes/classes/routes
+  returned, max related-class depth clamped to [1, 5], max response
+  bytes).
+- `DiscoveredProcess` now exposes a stable `slug` (kebab-cased name).
+  Added to the JSON output (additive, schema stays at `0.1`) and
+  surfaced in the Markdown export under each process header.
+- `StrHelpers::slug()` helper used by both the detector and the MCP
+  URI scheme.
+- `laravel/mcp` is a regular composer requirement so installing the
+  package gives users the layer for free; it stays inert until they
+  flip `PROCESS_MAP_MCP_ENABLED=true`.
+
+### Changed
+
+- `NamingConventionProcessDetector` propagates the slug through every
+  rebuilt `DiscoveredProcess` in the detector pipeline (Automation /
+  Bottleneck / Risk).
+- README gains a **MCP Support** section with installation,
+  registration, security and Markdown-vs-MCP guidance.
+- Roadmap updated: v1.1 ships the MCP layer; v1.2 picks up the HTML
+  dashboard and snapshot history; v1.3 brings the GitHub Action.
+
 ## [1.0.0] - 2026-05-04
 
 ### Added
