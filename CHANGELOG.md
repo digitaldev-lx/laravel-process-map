@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.1] - 2026-05-05
+
+### Fixed
+
+- `MermaidExporter` no longer emits `@` inside HTTP edge labels.
+  Recent Mermaid versions reserve `@` as a `LINK_ID` marker, which
+  caused `Parse error ... got 'LINK_ID'` on the overview flowchart.
+  Edge labels now use `HTTP::method` (e.g. `|HTTP::store|`).
+- README Mermaid example updated to match the new edge format.
+
 ## [1.1.0] - 2026-05-05
 
 ### Added

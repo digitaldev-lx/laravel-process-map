@@ -52,7 +52,7 @@ final class MermaidExporter extends AbstractExporter
             if ($route->controllerClass !== null) {
                 $controllerId = StrHelpers::safeMermaidId($route->controllerClass);
                 $lines[] = "    {$controllerId}[\"".$this->shortLabel($route->controllerClass).'"]';
-                $method = $route->controllerMethod !== null ? "@{$route->controllerMethod}" : '';
+                $method = $route->controllerMethod !== null ? "::{$route->controllerMethod}" : '';
                 $lines[] = "    {$id} --> |HTTP{$method}| {$controllerId}";
                 $nodeCount++;
             }

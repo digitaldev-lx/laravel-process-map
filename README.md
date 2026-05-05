@@ -384,7 +384,7 @@ Generates one overview flowchart plus one diagram per detected process:
 flowchart TD
     route_0["POST leads"]
     App_Http_Controllers_LeadController["LeadController"]
-    route_0 --> |HTTP@store| App_Http_Controllers_LeadController
+    route_0 --> |HTTP::store| App_Http_Controllers_LeadController
     App_Actions_CreateLeadAction --> |dispatches| App_Jobs_SendLeadFollowUpJob
     App_Actions_CreateLeadAction --> |fires| App_Events_LeadCreated
     App_Events_LeadCreated --> |handled by| App_Listeners_SendLeadCreatedNotification
