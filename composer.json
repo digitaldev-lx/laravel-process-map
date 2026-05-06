@@ -28,7 +28,7 @@
         "laravel/framework": "^12.0 || ^13.0",
         "laravel/mcp": "^0.7",
         "nikic/php-parser": "^5.0",
-        "symfony/finder": "^7.0"
+        "symfony/finder": "^7.4 || ^8.0"
     },
     "require-dev": {
         "orchestra/testbench": "^10.0 || ^11.0",
