@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.2] - 2026-05-06
+
+### Changed
+
+- `symfony/finder` constraint widened from `^7.0` to `^7.4 || ^8.0` so the
+  package installs cleanly on Laravel 13, which ships with Symfony 8
+  components. Thanks to @dirop1 (#1).
+
 ## [1.1.1] - 2026-05-05
 
 ### Fixed
